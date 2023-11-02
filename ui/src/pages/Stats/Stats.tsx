@@ -19,22 +19,23 @@ interface StatProps {
 
 function StatBox({ title, stat }: StatProps) {
     const theme = useTheme();
-    const isMd = useMediaQuery(theme.breakpoints.up('md'));
+    const isSm = useMediaQuery(theme.breakpoints.up('sm'));
     const formattedStat = stat.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
     return (
         <Card variant="outlined" sx={{
-            height: isMd ? 90 : 50,
+            height: isSm ? 75 : 50,
             display: 'flex',
-            flexDirection: isMd ? 'column' : 'row'
+            flexDirection: isSm ? 'column' : 'row'
         }}>
-            {isMd ?
-                <Typography variant="h6" sx={{pl: 2, pt: 1, fontWeight: 600}}>{title}</Typography> :
-                <Typography variant="h6" sx={{pl: 2, fontWeight: 600, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{title}</Typography>
+            {isSm ?
+                <Typography sx={{pl: 2, pt: 1, fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap'}}>{title}</Typography> :
+                <Typography sx={{pl: 2, fontWeight: 600, display: 'flex', justifyContent: 'center', alignItems: 'center'}}>{title}</Typography>
             }
-            <Typography sx={{ pl: 2, flexGrow: 1, fontSize: 30 }}>
-                { formattedStat }
-            </Typography>
+            {isSm ?
+                <Typography sx={{ pl: 2, flexGrow: 1, fontSize: 30 }}>{ formattedStat }</Typography> :
+                <Typography sx={{ pl: 2, flexGrow: 1, fontSize: 24, display: 'flex', alignItems: 'center' }}>{ formattedStat }</Typography>
+            }
         </Card>
     )
 }
@@ -43,43 +44,37 @@ export default function Stats() {
     const {window, setWindow, stats} = useStats()
     const theme = useTheme();
 
-    const isMd = useMediaQuery(theme.breakpoints.up('md'));
+    const isSm = useMediaQuery(theme.breakpoints.up('sm'));
 
     return (
         <div>
-            <Grid container spacing={isMd ? 2 : 1} sx={{ pb: 4 }}>
-                <Grid item md sm={12} style={{ width: '100%' }}>
+            <Grid container spacing={isSm ? 2 : 1} sx={{pb: 3}}>
+                <Grid item md sm style={{ width: '50%' }}>
                     <StatBox
                         title="Total Requests"
                         stat={stats.requests}
                     />
                 </Grid>
-                <Grid item md sm={12} style={{ width: '100%' }}>
+                <Grid item md sm style={{ width: '50%' }}>
                     <StatBox
-                        title="Cached Requests"
+                        title="Requests Cached"
                         stat={stats.cached}
                     />
                 </Grid>
-                <Grid item md sm={12} style={{ width: '100%' }}>
+                <Grid item md sm style={{ width: '50%' }}>
                     <StatBox
                         title="Errors"
                         stat={stats.errors}
                     />
                 </Grid>
-                <Grid item md sm={12} style={{ width: '100%' }}>
-                    <StatBox
-                        title="Cost"
-                        stat={stats.cost}
-                    />
-                </Grid>
-                <Grid item md sm={12} style={{ width: '100%' }}>
+                <Grid item md sm style={{ width: '50%' }}>
                     <StatBox
                         title="Tokens"
                         stat={stats.tokens}
                     />
                 </Grid>
             </Grid>
-            <FormControl sx={{ width: 200 }} size="small">
+            <FormControl sx={{ width: 200, pb: 2 }} size="small">
                 <InputLabel id="window-label">Time Window</InputLabel>
                 <Select
                     labelId="window-label"

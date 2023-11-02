@@ -41,9 +41,9 @@ LABEL org.opencontainers.image.title="LLMDash" \
 
 COPY docker-compose.yaml .
 COPY metadata.json .
-COPY docker.svg .
+COPY llmdash.svg .
 
-COPY --from=builder /service /
+COPY --from=backend-builder /service /
 COPY --from=client-builder /ui/build ui
 
 # Copy grafana and prometheus configurations into extension image

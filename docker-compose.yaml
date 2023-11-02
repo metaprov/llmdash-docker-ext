@@ -2,17 +2,14 @@ services:
   llmdash:
     image: ${DESKTOP_PLUGIN_IMAGE}
     volumes:
-      - llmdash-config:/llmdash
       - shared-grafana-files:/grafana
       - shared-prometheus-files:/prometheus
-    ports:
-      - 4444:4444
 
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
     ports:
-      - 4445:4445
+      - 9080:9090
     command:
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
@@ -35,3 +32,8 @@ services:
       GF_PATHS_CONFIG: /etc/grafana/grafana.ini
     depends_on:
       - prometheus
+
+volumes:
+  prometheusdata:
+  shared-grafana-files:
+  shared-prometheus-files:

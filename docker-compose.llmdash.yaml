@@ -1,0 +1,12 @@
+services:
+  llmdash:
+    image: docker.io/metaprov/llmdash
+    environment:
+      - LLMDASH_FLASH_DIR=/llmdash
+    ports:
+      - 4444:4444
+    volumes:
+      - llmdash-data:/llmdash
+
+volumes:
+  llmdash-data:

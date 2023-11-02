@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"log"
 	"net"
@@ -47,5 +48,12 @@ func listen(path string) (net.Listener, error) {
 }
 
 func stats(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, "")
+	stats := metrics.Stats()
+	data, err := json.Marshal(stats)
+	if err != nil {
+		logger.Error(err)
+		return ctx.JSON(http.StatusInternalServerError, "")
+	}
+
+	return ctx.JSON(http.StatusOK, data)
 }
