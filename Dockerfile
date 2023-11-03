@@ -28,7 +28,7 @@ COPY ui /ui
 RUN npm run build
 
 # ================== Configure Extension ==================
-FROM alpine
+FROM docker:cli
 LABEL org.opencontainers.image.title="LLMDash" \
     org.opencontainers.image.description="Caching extension for LLMs" \
     org.opencontainers.image.vendor="Metaprov" \
@@ -40,6 +40,7 @@ LABEL org.opencontainers.image.title="LLMDash" \
     com.docker.extension.changelog=""
 
 COPY docker-compose.yaml .
+COPY docker-compose.llmdash.yaml .
 COPY metadata.json .
 COPY llmdash.svg .
 

@@ -34,4 +34,8 @@ help: ## Show this help
 	@echo Please specify a build target. The choices are:
 	@grep -E '^[0-9a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "$(INFO_COLOR)%-30s$(NO_COLOR) %s\n", $$1, $$2}'
 
+enable-debug: ## Enable extension debug
+	docker extension dev ui-source metaprov/llmdash-extension http://localhost:3000
+	docker extension dev debug metaprov/llmdash-extension
+
 .PHONY: bin extension push-extension help

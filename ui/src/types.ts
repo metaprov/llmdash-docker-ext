@@ -16,3 +16,8 @@ export interface Stats {
     cost: number
     tokens: number
 }
+
+export interface InstallResponse {
+    installed: boolean
+    error: string
+}

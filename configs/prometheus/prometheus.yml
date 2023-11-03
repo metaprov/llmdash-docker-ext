@@ -5,4 +5,4 @@ scrape_configs:
   - job_name: llmdash_metrics
     scrape_interval: 2s
     static_configs:
-      - targets: ['host.docker.internal:4444']
+      - targets: ['host.docker.internal:6060']

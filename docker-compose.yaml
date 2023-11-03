@@ -2,6 +2,7 @@ services:
   llmdash:
     image: ${DESKTOP_PLUGIN_IMAGE}
     volumes:
+      - /var/run/docker.sock.raw:/var/run/docker.sock
       - shared-grafana-files:/grafana
       - shared-prometheus-files:/prometheus
 
