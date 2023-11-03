@@ -27,6 +27,9 @@ func main() {
 	logger.Infof("Initializing metrics")
 	metrics = NewMetricClient()
 
+	logger.Infof("Initializing chat database")
+	chatServer = NewChatServer()
+
 	logger.Infof("Starting listening on %s\n", socketPath)
 
 	router := echo.New()
@@ -42,6 +45,13 @@ func main() {
 
 	router.GET("/stats", stats)
 	router.GET("/install", install)
+
+	// Chat routes (does not conform to REST, but should be fine for now)
+	router.POST("/watch_messages", chatServer.WatchMessages)
+	router.POST("/watch_conversations", chatServer.WatchConversations)
+	router.POST("/send_message", chatServer.SendMessage)
+	router.POST("/delete_conversation", chatServer.DeleteConversation)
+	router.POST("/settings", chatServer.UpdateSettings)
 
 	log.Fatal(router.Start(startURL))
 }
