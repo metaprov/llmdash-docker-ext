@@ -85,7 +85,6 @@ func replyToUser(mgr *ChatManager, conversation string, message *string) {
 		return
 	}
 
-	fmt.Println("mili", time.Now().UnixMilli(), mgr.messageTime(messageId))
 	mgr.UpdateMessage(Message{
 		ID:             messageId,
 		ConversationID: conversation,

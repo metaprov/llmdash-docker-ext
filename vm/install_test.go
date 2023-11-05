@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	gapi "github.com/grafana/grafana-api-golang-client"
 	"github.com/labstack/echo"
 	"net/http/httptest"
 	"testing"
@@ -32,4 +33,10 @@ func TestCheck(t *testing.T) {
 	ctx := e.NewContext(req, rec)
 
 	fmt.Println(install(ctx))
+}
+
+func TestGrafanaPanel(t *testing.T) {
+	for _, metadata := range Dashboards {
+		buildGrafanaDashboard(metadata, &gapi.DataSource{Type: "A", UID: "A"})
+	}
 }

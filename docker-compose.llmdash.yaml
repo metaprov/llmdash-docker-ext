@@ -4,7 +4,7 @@ services:
     image: docker.io/metaprov/llmdash:latest
     environment:
       - LLMDASH_FLASH_DIR=/llmdash
-      - LLMDASH_PORT=6060
+      - BIND_ADDR=0.0.0.0:6060
     ports:
       - 6060:6060
     volumes:

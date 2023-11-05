@@ -11,6 +11,7 @@ import {
     useTheme
 } from "@mui/material";
 import {useStats} from "../../hooks/useStats";
+import {useState} from "react";
 
 interface StatProps {
     title: string
@@ -26,7 +27,10 @@ function StatBox({ title, stat }: StatProps) {
         <Card variant="outlined" sx={{
             height: isSm ? 75 : 50,
             display: 'flex',
-            flexDirection: isSm ? 'column' : 'row'
+            flexDirection: isSm ? 'column' : 'row',
+            '& p': {
+                color: theme.palette.docker.grey[700]
+            }
         }}>
             {isSm ?
                 <Typography sx={{pl: 2, pt: 1, fontWeight: 600, fontSize: 14, whiteSpace: 'nowrap'}}>{title}</Typography> :
@@ -41,10 +45,16 @@ function StatBox({ title, stat }: StatProps) {
 }
 
 export default function Stats() {
-    const {window, setWindow, stats} = useStats()
+    const [window, setWindow] = useState("minute")
+    const {stats} = useStats()
     const theme = useTheme();
 
     const isSm = useMediaQuery(theme.breakpoints.up('sm'));
+
+    function getPanelUrl(title: string, window: Window) {
+        const windows = ["minute", "hour", "day"]
+        const timeFrame = ["1m", "1h", "1d"]
+    }
 
     return (
         <div>

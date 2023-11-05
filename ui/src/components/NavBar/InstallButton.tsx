@@ -4,7 +4,7 @@ import ErrorIcon from '@mui/icons-material/Error';
 import {useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {createDockerDesktopClient} from "@docker/extension-api-client";
 import Dialog from "../Dialog/Dialog";
-import {InstallResponse} from "../../types";
+import {InstallResponse} from "../../requests";
 
 
 export default function InstallButton() {

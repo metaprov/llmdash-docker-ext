@@ -1,8 +1,8 @@
-import {useState} from "react";
-import {Stats} from "../types";
+import {useEffect, useState} from "react";
+import {GetStatsResponse, InstallResponse, Stats} from "../requests";
+import {createDockerDesktopClient} from "@docker/extension-api-client";
 
 export const useStats = () => {
-    const [window, setWindow] = useState("minute")
     const [stats, setStats] = useState({
         requests: 0,
         cached: 0,
@@ -11,5 +11,19 @@ export const useStats = () => {
         tokens: 0
     } as Stats)
 
-    return { window, setWindow, stats }
+    const ddClient = createDockerDesktopClient()
+
+    useEffect(() => {
+        const fetchInterval = setInterval(() => {
+            ddClient.extension.vm?.service?.get("/stats")
+                .then((data: any) => {
+                    const response: Stats = JSON.parse(atob(data as string))
+                    setStats(stats)
+                })
+        },  1000)
+
+        return () => clearInterval(fetchInterval)
+    })
+
+    return { stats }
 }

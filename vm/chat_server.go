@@ -25,9 +25,12 @@ func (s *ChatServer) WatchMessages(ctx echo.Context) error {
 
 	var outChan = make(chan *MessageEvents, 1)
 	s.mgr.subscribeMessages(params.Conversation, params.Generation, outChan)
-	resp := <-outChan
-
-	return ctx.JSON(http.StatusOK, resp)
+	select {
+	case resp := <-outChan:
+		return ctx.JSON(http.StatusOK, resp)
+	case <-time.After(10 * time.Second):
+		return ctx.JSON(http.StatusOK, &MessageEvents{Generation: params.Generation})
+	}
 }
 
 func (s *ChatServer) WatchConversations(ctx echo.Context) error {

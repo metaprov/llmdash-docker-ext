@@ -87,12 +87,11 @@ func buildGrafanaPanel(metadata *GrafanaDashboardMetadata, datasource *grafana.D
 		Id:       int32(id),
 		Interval: "2s",
 		Options:  options,
-		Targets:  nil,
 		Title:    metadata.Title,
 		Type:     "timeseries",
 	}
 
-	for i := 1; i < len(metadata.Queries); i++ {
+	for i := 0; i < len(metadata.Queries); i++ {
 		query := metadata.Queries[i]
 		target := GrafanaPanelTargetsObject{
 			Datasource: GrafanaDatasource{

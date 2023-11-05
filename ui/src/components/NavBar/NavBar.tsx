@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {Link} from 'react-router-dom';
 import {Box, Stack, Tab, Tabs, Typography} from '@mui/material';
 import {ReactComponent as LLMDashSVG} from '../../../assets/llmdash.svg';

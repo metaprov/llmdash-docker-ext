@@ -39,12 +39,11 @@ func TestChatManager_Messages(t *testing.T) {
 func TestChatManager_AI(t *testing.T) {
 	_ = os.Remove("./db.json")
 	chat := NewChatManager()
-	chat.chat.APIKey = "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"
 
 	var out = make(chan *MessageEvents, 1)
 	chat.UpdateMessage(Message{
 		ID:             "test",
-		Content:        "how would i serialize a date in go",
+		Content:        "what color is the sky?",
 		Type:           MessageTypeUser,
 		ConversationID: "test",
 	})

@@ -1,10 +1,4 @@
 
-export type Window = "minute" | "hour" | "day"
-
-export interface GetStatsRequest {
-    window: Window
-}
-
 export interface GetStatsResponse {
     stats: Stats
 }

@@ -18,6 +18,9 @@ bin: ## Build the binary for the current platform
 build-extension: ## Build service image to be deployed as a desktop extension
 	docker build --tag=$(IMAGE):$(TAG) .
 
+remove-extension: ## Uninstall the extension
+	docker extension rm $(IMAGE):$(TAG)
+
 install-extension: build-extension ## Install the extension
 	docker extension install $(IMAGE):$(TAG)
 
