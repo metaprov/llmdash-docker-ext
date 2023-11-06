@@ -36,9 +36,13 @@ type Chat struct {
 }
 
 type Conversation struct {
-	ID    string `json:"id"`
-	Topic string `json:"topic"`
-	Time  int64  `json:"time"`
+	ID          string  `json:"id"`
+	Topic       string  `json:"topic"`
+	Time        int64   `json:"time"`
+	MaxTokens   int     `json:"maxTokens,omitempty"`
+	Temperature float32 `json:"temperature,omitempty"`
+	TopP        float32 `json:"topP,omitempty"`
+	Model       string  `json:"model,omitempty"`
 }
 
 type Message struct {

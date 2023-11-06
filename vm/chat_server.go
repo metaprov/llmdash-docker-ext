@@ -59,6 +59,16 @@ func (s *ChatServer) DeleteConversation(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, "")
 }
 
+func (s *ChatServer) UpdateConversation(ctx echo.Context) error {
+	var params Conversation
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {
+		return ctx.JSON(http.StatusBadRequest, "")
+	}
+
+	s.mgr.UpdateConversation(params)
+	return ctx.JSON(http.StatusOK, "")
+}
+
 func (s *ChatServer) SendMessage(ctx echo.Context) error {
 	var params SendMessageRequest
 	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {

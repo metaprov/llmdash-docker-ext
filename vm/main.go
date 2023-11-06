@@ -46,12 +46,13 @@ func main() {
 	router.GET("/stats", stats)
 	router.GET("/install", install)
 
-	// Chat routes (does not conform to REST, but should be fine for now)
+	// Chat routes
 	router.POST("/watch_messages", chatServer.WatchMessages)
 	router.POST("/watch_conversations", chatServer.WatchConversations)
-	router.POST("/send_message", chatServer.SendMessage)
-	router.POST("/delete_conversation", chatServer.DeleteConversation)
 	router.POST("/settings", chatServer.UpdateSettings)
+	router.POST("/message", chatServer.SendMessage)
+	router.POST("/conversation", chatServer.UpdateConversation)
+	router.POST("/delete_conversation", chatServer.DeleteConversation)
 
 	log.Fatal(router.Start(startURL))
 }

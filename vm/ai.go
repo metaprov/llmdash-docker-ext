@@ -8,6 +8,7 @@ import (
 	openai "github.com/sashabaranov/go-openai"
 	"io"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -17,7 +18,8 @@ You're a helpful assistant. You're tasked with summarizing questions. If the inp
 The user's question is: Tell me about potential market segments of companies who could benefit from Generative AI
 Your response as an assistant is: AI Benefits Across Industries
 -------
-Avoid adding unnecessary punctuation like question marks. It's critical that you make your response as brief as possible. The question is:
+Avoid adding unnecessary punctuation like question marks. It's critical that you make your response as brief as possible.
+You must ONLY respond with the summary. Do not say anything else besides the summary. The question is:
 %s
 `
 
@@ -68,12 +70,16 @@ func replyToUser(mgr *ChatManager, conversation string, message *string) {
 
 	// Call the OpenAI API
 	client := openai.NewClient(mgr.chat.APIKey)
+	params := mgr.conversation(conversation)
 	stream, err := client.CreateChatCompletionStream(
 		context.Background(),
 		openai.ChatCompletionRequest{
-			Model:    openai.GPT3Dot5Turbo,
-			Messages: messages,
-			Stream:   true,
+			Model:       params.Model,
+			MaxTokens:   params.MaxTokens,
+			TopP:        params.TopP,
+			Temperature: params.Temperature,
+			Messages:    messages,
+			Stream:      true,
 		},
 	)
 
@@ -130,22 +136,30 @@ streamError:
 
 func summarizeConversation(mgr *ChatManager, query, conversation string) {
 	client := openai.NewClient(mgr.chat.APIKey)
-	resp, err := client.CreateCompletion(
+	resp, err := client.CreateChatCompletion(
 		context.Background(),
-		openai.CompletionRequest{
-			Model:     openai.GPT3Dot5TurboInstruct,
-			Prompt:    fmt.Sprintf(TOPIC_SUMMARY_PROMPT, query),
-			MaxTokens: 30,
+		openai.ChatCompletionRequest{
+			Model: openai.GPT3Dot5Turbo,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: fmt.Sprintf(TOPIC_SUMMARY_PROMPT, query),
+				},
+			},
 		},
 	)
 	if err != nil || len(resp.Choices) == 0 {
 		logger.Errorf("failed to call OpenAI for topic summary: %v", err)
+		go summarizeConversation(mgr, query, conversation)
 		return
 	}
 
+	summary := resp.Choices[0].Message.Content
+	summary = strings.Trim(summary, " \n?.")
+
 	mgr.UpdateConversation(Conversation{
 		ID:    conversation,
-		Topic: resp.Choices[0].Text,
+		Topic: summary,
 		Time:  mgr.conversationTime(conversation),
 	})
 }

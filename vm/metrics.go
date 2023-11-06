@@ -25,7 +25,7 @@ type GrafanaDashboardMetadata struct {
 
 var Dashboards = []*GrafanaDashboardMetadata{
 	{
-		Title: "Requests",
+		Title: "Total Requests",
 		UID:   "requests",
 		Queries: []GrafanaQueryMetadata{
 			{
@@ -33,6 +33,24 @@ var Dashboards = []*GrafanaDashboardMetadata{
 				Name:          "http_requests_total",
 				DisplayName:   "requests",
 				Color:         "green",
+			},
+		},
+	},
+	{
+		Title: "Hit/Miss Rate",
+		UID:   "hitrate",
+		Queries: []GrafanaQueryMetadata{
+			{
+				QueryTemplate: "rate(http_requests_completion_cache_hit_total[%s])",
+				Name:          "http_requests_completion_cache_hit_total",
+				DisplayName:   "requests",
+				Color:         "green",
+			},
+			{
+				QueryTemplate: "rate(http_requests_completion_cache_miss_total[%s])",
+				Name:          "http_requests_completion_cache_miss_total",
+				DisplayName:   "requests",
+				Color:         "red",
 			},
 		},
 	},

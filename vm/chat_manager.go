@@ -2,7 +2,7 @@
 package main
 
 import (
-	"fmt"
+	"github.com/sashabaranov/go-openai"
 	"sync"
 	"time"
 )
@@ -136,6 +136,8 @@ func (s *ChatManager) updateMessageInternal(object Message, persist bool) {
 			ID:    object.ConversationID,
 			Topic: "New Conversation",
 			Time:  time.Now().UnixMilli(),
+			TopP:  40,
+			Model: openai.GPT3Dot5Turbo,
 		})
 		go summarizeConversation(s, object.Content, object.ConversationID)
 	} else {
@@ -196,7 +198,6 @@ func (s *ChatManager) subscribeMessages(conversation string, generation int64, o
 	}
 
 	if s.messageGeneration[conversation] != generation {
-		fmt.Println("firing", s.messageGeneration, conversation)
 		s.fireMessageSubscriber()
 	}
 	s.Unlock()
@@ -261,4 +262,14 @@ func (s *ChatManager) conversationTime(id string) int64 {
 	}
 	s.Unlock()
 	return time.Now().UnixMilli()
+}
+
+func (s *ChatManager) conversation(id string) Conversation {
+	s.Lock()
+	defer s.Unlock()
+	if msg, ok := s.chat.conversationsById[id]; ok {
+		return msg
+	}
+	s.Unlock()
+	return Conversation{}
 }

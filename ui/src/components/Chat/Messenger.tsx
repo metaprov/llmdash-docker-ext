@@ -1,4 +1,4 @@
-import {Box, Button, Card, Stack, TextField, useTheme} from "@mui/material";
+import {Box, Button, Card, Stack, TextField, Typography, useTheme} from "@mui/material";
 import {Chat, Message as MessageData} from "../../hooks/useChat";
 import SendIcon from '@mui/icons-material/Send';
 import Message from "./Message";
@@ -58,11 +58,23 @@ export default function Messenger(props: MessengerProps) {
             height: '100%',
             display: 'flex',
             flexDirection: 'column',
+            position: 'relative',
             '&:hover': {
                 boxShadow: 'none',
             },
             borderColor: theme.palette.docker.grey[300]
         }}>
+            <Typography variant="h1" sx={{
+                position: 'absolute',
+                inset: '0 0 0 0',
+                margin: 'auto',
+                justifyContent: 'center',
+                alignItems: 'center',
+                display: props.conversation ? 'none' : 'flex',
+                color: theme.palette.docker.grey[300],
+            }}>
+                LLMDash
+            </Typography>
             {/* Message Area */}
             <Box sx={{display: 'flex', justifyContent: 'center', flexGrow: 1, m: 1, overflowY: 'scroll'}}>
                 <Stack

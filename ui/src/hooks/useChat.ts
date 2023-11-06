@@ -21,6 +21,10 @@ interface ConversationData {
     id: string
     topic: string
     time: number
+    topP: number
+    model: string
+    temperature: number
+    maxTokens: number
 }
 
 export type Conversation = ConversationInternal & ConversationData
@@ -168,7 +172,7 @@ export const useChat = () => {
             })
         }
 
-        await ddClient.extension.vm?.service?.post("/send_message", JSON.stringify({
+        await ddClient.extension.vm?.service?.post("/message", JSON.stringify({
             conversation: msgConversation,
             query: query,
             id: msgId
@@ -176,5 +180,13 @@ export const useChat = () => {
         setConversation(msgConversation)
     }
 
-    return {chat, conversation, setConversation, sendMessage}
+    const deleteConversation = async (id: string) => {
+        await ddClient.extension.vm?.service?.post("/delete_conversation", JSON.stringify({conversation: id}))
+    }
+    
+    const updateConversation = async (conversation: Conversation) => {
+        await ddClient.extension.vm?.service?.post("/conversation", JSON.stringify(conversation))
+    }
+
+    return {chat, conversation, setConversation, sendMessage, deleteConversation, updateConversation }
 }
