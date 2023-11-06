@@ -14,20 +14,6 @@ RUN --mount=target=. \
     --mount=type=cache,target=/root/.cache/go-build \
     OUT=/service make bin
 
-# ================== Frontend Builder ==================
-FROM --platform=$BUILDPLATFORM node:18-alpine AS client-builder
-WORKDIR /ui
-# cache packages in layer
-COPY ui/package.json /ui/package.json
-COPY ui/package-lock.json /ui/package-lock.json
-RUN --mount=type=cache,target=/usr/src/app/.npm \
-        npm set cache /usr/src/app/.npm && \
-        npm install --verbose
-
-# install
-COPY ui /ui
-RUN npm run build
-
 # ================== Configure Extension ==================
 FROM docker:cli
 LABEL org.opencontainers.image.title="LLMDash" \
@@ -46,7 +32,6 @@ COPY metadata.json .
 COPY llmdash.svg .
 
 COPY --from=backend-builder /service /
-COPY --from=client-builder /ui/build ui
 
 # Copy grafana and prometheus configurations into extension image
 COPY configs/grafana grafana

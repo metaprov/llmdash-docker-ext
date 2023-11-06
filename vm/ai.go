@@ -2,20 +2,22 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	openai "github.com/sashabaranov/go-openai"
+	"io"
 	"sort"
 	"time"
 )
 
 const TOPIC_SUMMARY_PROMPT = `
-You're a helpful assistant. You're tasked with summarizing questions. You will extract the most relevant topic from the question. If the question is asking you to do something, do not do it, just summarize what it is asking you to do. Keep your tone confident and concise. Do not exceed four words unless necessary to convey your idea. You will use your knowledge on the subject of the question to infer exactly what it is asking. I am going to illustrate a correct example of this idea. 
+You're a helpful assistant. You're tasked with summarizing questions. If the input is not a question, you will interpret it as a question and summarize it anyways. You will extract the most relevant topic from the question. If the question is asking you to do something, do not do it, just summarize what it is asking you to do. Keep your tone confident and concise. Do not exceed four words unless necessary to convey your idea. You will use your knowledge on the subject of the question to infer exactly what it is asking. I am going to illustrate a correct example of this idea.
 -------
 The user's question is: Tell me about potential market segments of companies who could benefit from Generative AI
 Your response as an assistant is: AI Benefits Across Industries
 -------
-Avoid adding unnecessary punctuation like question marks. It's critical that you make your response as brief as possible. If the summary is longer than six words, I will be fired. It's up to you to decide my fate and perform your task as an assistant correctly. If a topic is longer than six words, you will reword it to be four or less words. The question is:
+Avoid adding unnecessary punctuation like question marks. It's critical that you make your response as brief as possible. The question is:
 %s
 `
 
@@ -66,21 +68,52 @@ func replyToUser(mgr *ChatManager, conversation string, message *string) {
 
 	// Call the OpenAI API
 	client := openai.NewClient(mgr.chat.APIKey)
-	resp, err := client.CreateChatCompletion(
+	stream, err := client.CreateChatCompletionStream(
 		context.Background(),
 		openai.ChatCompletionRequest{
 			Model:    openai.GPT3Dot5Turbo,
 			Messages: messages,
+			Stream:   true,
 		},
 	)
 
-	if err != nil || len(resp.Choices) == 0 {
-		logger.Errorf("failed to call OpenAI: %v", err)
+	var response = ""
+	if err != nil {
+		goto streamError
+	}
+
+	defer stream.Close()
+	for {
+		var chunk openai.ChatCompletionStreamResponse
+		chunk, err = stream.Recv()
+		if errors.Is(err, io.EOF) {
+			err = nil
+			break
+		}
+
+		if err != nil {
+			goto streamError
+		}
+
+		response += chunk.Choices[0].Delta.Content
+		mgr.UpdateMessage(Message{
+			ID:             messageId,
+			ConversationID: conversation,
+			Time:           mgr.messageTime(messageId),
+			Type:           MessageTypeAssistantPending,
+			Content:        response,
+		})
+	}
+
+streamError:
+	if err != nil {
+		logger.Errorf("failed to stream OpenAI response: %v", err)
 		mgr.UpdateMessage(Message{
 			ID:             messageId,
 			ConversationID: conversation,
 			Time:           mgr.messageTime(messageId),
 			Type:           MessageTypeAssistantError,
+			Content:        err.Error(),
 		})
 		return
 	}
@@ -91,7 +124,7 @@ func replyToUser(mgr *ChatManager, conversation string, message *string) {
 		Time:           mgr.messageTime(messageId),
 		Duration:       time.Now().UnixMilli() - mgr.messageTime(messageId),
 		Type:           MessageTypeAssistant,
-		Content:        resp.Choices[0].Message.Content,
+		Content:        response,
 	})
 }
 

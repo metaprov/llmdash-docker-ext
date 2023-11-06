@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"time"
 )
@@ -126,8 +127,7 @@ func (s *ChatManager) DeleteConversation(uid string) {
 	s.Unlock()
 }
 
-func (s *ChatManager) UpdateMessage(object Message) {
-	s.Lock()
+func (s *ChatManager) updateMessageInternal(object Message, persist bool) {
 	if _, ok := s.chat.conversationsById[object.ConversationID]; !ok {
 		// This message is coming from a conversation that doesn't exist; we need to create it
 		s.messageGeneration[object.ConversationID] = 1
@@ -153,10 +153,24 @@ func (s *ChatManager) UpdateMessage(object Message) {
 	if !exists && object.Type == MessageTypeUser {
 		go replyToUser(s, object.ConversationID, nil)
 	}
-	if err := s.chat.Persist(); err != nil {
-		logger.Errorf("failed to persist chat database: %v", err)
+	if persist {
+		if err := s.chat.Persist(); err != nil {
+			logger.Errorf("failed to persist chat database: %v", err)
+		}
 	}
 	s.fireMessageSubscriber()
+}
+
+func (s *ChatManager) UpdateMessage(object Message) {
+	s.Lock()
+	s.updateMessageInternal(object, true)
+	s.Unlock()
+}
+
+func (s *ChatManager) UpdateMessageLive(object Message) {
+	// Update a message without persistence (i.e. streaming updates)
+	s.Lock()
+	s.updateMessageInternal(object, false)
 	s.Unlock()
 }
 
@@ -182,6 +196,7 @@ func (s *ChatManager) subscribeMessages(conversation string, generation int64, o
 	}
 
 	if s.messageGeneration[conversation] != generation {
+		fmt.Println("firing", s.messageGeneration, conversation)
 		s.fireMessageSubscriber()
 	}
 	s.Unlock()

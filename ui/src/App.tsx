@@ -7,7 +7,7 @@ import NavBar from './components/NavBar/NavBar';
 
 export default function App() {
   return (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       <NavBar />
       <Routes>
         <Route path="/" element={<Stats />} />

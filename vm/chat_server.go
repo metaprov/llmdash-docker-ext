@@ -2,6 +2,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"github.com/labstack/echo"
 	"net/http"
 	"time"
@@ -19,7 +21,7 @@ func NewChatServer() *ChatServer {
 
 func (s *ChatServer) WatchMessages(ctx echo.Context) error {
 	var params WatchMessageRequest
-	if err := ctx.Bind(&params); err != nil {
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "")
 	}
 
@@ -29,13 +31,14 @@ func (s *ChatServer) WatchMessages(ctx echo.Context) error {
 	case resp := <-outChan:
 		return ctx.JSON(http.StatusOK, resp)
 	case <-time.After(10 * time.Second):
+		fmt.Println("timeout")
 		return ctx.JSON(http.StatusOK, &MessageEvents{Generation: params.Generation})
 	}
 }
 
 func (s *ChatServer) WatchConversations(ctx echo.Context) error {
 	var params WatchConversationRequest
-	if err := ctx.Bind(&params); err != nil {
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "")
 	}
 
@@ -48,7 +51,7 @@ func (s *ChatServer) WatchConversations(ctx echo.Context) error {
 
 func (s *ChatServer) DeleteConversation(ctx echo.Context) error {
 	var params DeleteConversationRequest
-	if err := ctx.Bind(&params); err != nil {
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "")
 	}
 
@@ -58,10 +61,11 @@ func (s *ChatServer) DeleteConversation(ctx echo.Context) error {
 
 func (s *ChatServer) SendMessage(ctx echo.Context) error {
 	var params SendMessageRequest
-	if err := ctx.Bind(&params); err != nil {
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "")
 	}
 
+	fmt.Println("sending", params.ID, params.Conversation, params.Query)
 	s.mgr.UpdateMessage(Message{
 		ID:             params.ID,
 		ConversationID: params.Conversation,
@@ -75,7 +79,7 @@ func (s *ChatServer) SendMessage(ctx echo.Context) error {
 
 func (s *ChatServer) UpdateSettings(ctx echo.Context) error {
 	var params UpdateSettingsRequest
-	if err := ctx.Bind(&params); err != nil {
+	if err := json.NewDecoder(ctx.Request().Body).Decode(&params); err != nil {
 		return ctx.JSON(http.StatusBadRequest, "")
 	}
 
