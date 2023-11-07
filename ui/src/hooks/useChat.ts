@@ -17,7 +17,7 @@ interface ConversationInternal {
     generation: number
 }
 
-interface ConversationData {
+export interface ConversationData {
     id: string
     topic: string
     time: number
@@ -183,8 +183,23 @@ export const useChat = () => {
     const deleteConversation = async (id: string) => {
         await ddClient.extension.vm?.service?.post("/delete_conversation", JSON.stringify({conversation: id}))
     }
-    
-    const updateConversation = async (conversation: Conversation) => {
+
+    const updateConversation = async (conversation: ConversationData) => {
+        console.log("Saving conv")
+        if (!chat.conversations.get(conversation.id)) {
+            conversation.id = uuidv4()
+            chat.conversations.set(conversation.id, {
+                ...conversation,
+                messages: new Map<string, Message>(),
+                generation: 0,
+            })
+            setConversation(conversation.id)
+            setChat({
+                conversations: chat.conversations,
+                generation: chat.generation
+            })
+            console.log("Created new")
+        }
         await ddClient.extension.vm?.service?.post("/conversation", JSON.stringify(conversation))
     }
 

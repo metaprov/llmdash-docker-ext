@@ -64,17 +64,26 @@ export default function Message(props: MessageProps) {
             return
 
         const children = contentRef.current?.children
-        if (!children || children?.length <= 1) {
+        if (!children) {
             return
         }
         // Find the deepest last element
         const findDeepest: (elem: Element) => Element = (elem: Element) => {
             if (elem.children.length == 0)
                 return elem
+            const last = elem.children.item(elem.children.length - 1)!
+            if (last.tagName == 'CODE')
+                return elem
 
-            return findDeepest(elem.children.item(elem.children.length - 1)!)
+            return findDeepest(last)
         }
-        const lastElem = findDeepest(children.item(children.length - 2)!) as HTMLDivElement
+        let lastElem: HTMLDivElement
+        if (children?.length <= 1) {
+            lastElem = contentRef.current!
+            console.log("using content ref")
+        } else {
+            lastElem = findDeepest(children.item(children.length - 2)!) as HTMLDivElement
+        }
         if (lastElem.tagName == 'PRE') // Skip code blocks
             return
         if (lastElem.children.item(lastElem.children.length - 1)?.tagName == 'PRE')

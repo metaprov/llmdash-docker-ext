@@ -3,7 +3,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/labstack/echo"
 	"net/http"
 	"time"
@@ -31,7 +30,6 @@ func (s *ChatServer) WatchMessages(ctx echo.Context) error {
 	case resp := <-outChan:
 		return ctx.JSON(http.StatusOK, resp)
 	case <-time.After(10 * time.Second):
-		fmt.Println("timeout")
 		return ctx.JSON(http.StatusOK, &MessageEvents{Generation: params.Generation})
 	}
 }
@@ -75,7 +73,6 @@ func (s *ChatServer) SendMessage(ctx echo.Context) error {
 		return ctx.JSON(http.StatusBadRequest, "")
 	}
 
-	fmt.Println("sending", params.ID, params.Conversation, params.Query)
 	s.mgr.UpdateMessage(Message{
 		ID:             params.ID,
 		ConversationID: params.Conversation,

@@ -45,6 +45,8 @@ func main() {
 
 	router.GET("/stats", stats)
 	router.GET("/install", install)
+	router.GET("/config", getConfig)
+	router.POST("/config", setConfig)
 
 	// Chat routes
 	router.POST("/watch_messages", chatServer.WatchMessages)

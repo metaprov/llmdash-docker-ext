@@ -5,7 +5,7 @@ import {useChat} from "../../hooks/useChat";
 import React, {useEffect, useRef} from "react";
 
 export default function Chat() {
-    const { chat, conversation, setConversation, sendMessage, deleteConversation } = useChat();
+    const { chat, conversation, setConversation, sendMessage, deleteConversation, updateConversation } = useChat();
     const chatRef: React.MutableRefObject<HTMLDivElement | undefined> = useRef()
 
     const updateChatHeight = () => {
@@ -32,6 +32,7 @@ export default function Chat() {
             <Messenger
                 chat={chat}
                 conversation={Boolean(conversation) ? conversation : undefined}
+                updateConversation={updateConversation}
                 sendMessage={sendMessage}
             />
         </Box>

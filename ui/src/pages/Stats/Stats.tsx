@@ -10,7 +10,7 @@ import {
     useTheme
 } from "@mui/material";
 import {useStats} from "../../hooks/useStats";
-import React, {useEffect, useRef, useState} from "react";
+import React, {createRef, useEffect, useRef, useState} from "react";
 
 interface StatProps {
     title: string
@@ -56,11 +56,14 @@ function StatBox({title, stat}: StatProps) {
     )
 }
 
-export default function Stats() {
+export default function Stats(/*props: {graphs: {[name: string]: HTMLIFrameElement}}*/) {
     const [window, setWindow] = useState("minute")
     const {stats} = useStats()
     const theme = useTheme();
     const graphRef: React.MutableRefObject<HTMLDivElement | undefined> = useRef()
+    const graphLeft: React.RefObject<HTMLDivElement> = createRef()
+    const graphRight: React.RefObject<HTMLDivElement> = createRef()
+
 
     const isSm = useMediaQuery(theme.breakpoints.up('sm'));
 
@@ -84,6 +87,28 @@ export default function Stats() {
         document.defaultView!.addEventListener('resize', updateGraphHeight)
         return () => document.defaultView!.removeEventListener('resize', updateGraphHeight)
     })
+
+    /*
+    useEffect(() => {
+        const left = props.graphs[`requests-${window}`]
+        const right = props.graphs[`hitrate-${window}`]
+        if (!left || !right)
+            return
+        left.style.display = ''
+        right.style.display = ''
+        graphLeft.current!.appendChild(left)
+        graphRight.current!.appendChild(right)
+
+        return () => {
+            left.style.display = 'none'
+            right.style.display = 'none'
+            const root = document.getElementById('root')!
+            root.appendChild(left)
+            root.appendChild(right)
+        }
+    }, [window, props.graphs])
+
+     */
 
 
     // @ts-ignore
@@ -131,7 +156,7 @@ export default function Stats() {
             {/*
 // @ts-ignore */}
             <Grid container spacing={2} ref={graphRef} sx={{overflowY: 'scroll'}}>
-                <Grid item md sm style={{width: '100%'}}>
+                <Grid item md sm style={{width: '100%'}} ref={graphLeft}>
                     <iframe
                         src={getPanelUrl('requests', window)}
                         width="100%"
@@ -139,7 +164,7 @@ export default function Stats() {
                         style={{border: 0}}
                     />
                 </Grid>
-                <Grid item md sm style={{width: '100%'}}>
+                <Grid item md sm style={{width: '100%'}} ref={graphRight}>
                     <iframe
                         src={getPanelUrl('hitrate', window)}
                         width="100%"

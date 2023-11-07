@@ -88,6 +88,10 @@ func NewChatManager() *ChatManager {
 
 func (s *ChatManager) updateConversationInternal(object Conversation) {
 	s.conversationGeneration++
+	if _, ok := s.chat.conversationsById[object.ID]; !ok {
+		s.messageGeneration[object.ID] = 1
+		s.messageMap[object.ID] = make(map[string]*MessageEvent)
+	}
 	s.chat.conversationsById[object.ID] = object
 	s.conversationMap[object.ID] = &ConversationEvent{
 		Generation:   s.conversationGeneration,
@@ -110,8 +114,9 @@ func (s *ChatManager) DeleteConversation(uid string) {
 	s.Lock()
 	s.conversationGeneration++
 	s.conversationMap[uid] = &ConversationEvent{
-		Generation: s.conversationGeneration,
-		Type:       EventTypeDelete,
+		Generation:   s.conversationGeneration,
+		Conversation: &Conversation{ID: uid},
+		Type:         EventTypeDelete,
 	}
 	delete(s.messageGeneration, uid)
 	delete(s.chat.conversationsById, uid)
@@ -128,7 +133,7 @@ func (s *ChatManager) DeleteConversation(uid string) {
 }
 
 func (s *ChatManager) updateMessageInternal(object Message, persist bool) {
-	if _, ok := s.chat.conversationsById[object.ConversationID]; !ok {
+	if conv, ok := s.chat.conversationsById[object.ConversationID]; !ok {
 		// This message is coming from a conversation that doesn't exist; we need to create it
 		s.messageGeneration[object.ConversationID] = 1
 		s.messageMap[object.ConversationID] = make(map[string]*MessageEvent)
@@ -136,12 +141,16 @@ func (s *ChatManager) updateMessageInternal(object Message, persist bool) {
 			ID:    object.ConversationID,
 			Topic: "New Conversation",
 			Time:  time.Now().UnixMilli(),
-			TopP:  40,
+			TopP:  1,
 			Model: openai.GPT3Dot5Turbo,
 		})
 		go summarizeConversation(s, object.Content, object.ConversationID)
 	} else {
 		s.messageGeneration[object.ConversationID]++
+		// If we have the default topic name, try again
+		if conv.Topic == "New Conversation" && object.Type == MessageTypeUser {
+			go summarizeConversation(s, object.Content, object.ConversationID)
+		}
 	}
 	_, exists := s.messageMap[object.ConversationID][object.ID]
 	if !exists && object.Time == 0 {
