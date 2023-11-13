@@ -69,9 +69,9 @@ func replyToUser(mgr *ChatManager, conversation string, message *string) {
 	}
 
 	// Call the OpenAI API
-	config := openai.DefaultConfig(mgr.chat.APIKey)
-	config.BaseURL = "http://host.docker.internal:6060/v1"
-	client := openai.NewClientWithConfig(config)
+	//config := openai.DefaultConfig(mgr.chat.APIKey)
+	//config.BaseURL = "http://host.docker.internal:6060/v1"
+	client := openai.NewClient(mgr.chat.APIKey)
 	params := mgr.conversation(conversation)
 	stream, err := client.CreateChatCompletionStream(
 		context.Background(),
@@ -138,9 +138,7 @@ streamError:
 }
 
 func summarizeConversation(mgr *ChatManager, query, conversation string) {
-	config := openai.DefaultConfig(mgr.chat.APIKey)
-	config.BaseURL = "http://host.docker.internal:6060/v1"
-	client := openai.NewClientWithConfig(config)
+	client := openai.NewClient(mgr.chat.APIKey)
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{

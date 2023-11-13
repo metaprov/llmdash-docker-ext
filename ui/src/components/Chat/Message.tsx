@@ -80,7 +80,6 @@ export default function Message(props: MessageProps) {
         let lastElem: HTMLDivElement
         if (children?.length <= 1) {
             lastElem = contentRef.current!
-            console.log("using content ref")
         } else {
             lastElem = findDeepest(children.item(children.length - 2)!) as HTMLDivElement
         }

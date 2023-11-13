@@ -160,8 +160,8 @@ export default function Messenger(props: MessengerProps) {
                         maxWidth: 30,
                         pl: 0,
                         pr: 0,
-                        minWidth: 30
-                    }}>
+                        minWidth: 30,
+                    }} onClick={handleEnter}>
                         <SendIcon sx={{fontSize: '16px !important'}}/>
                     </Button>
                 </Box>

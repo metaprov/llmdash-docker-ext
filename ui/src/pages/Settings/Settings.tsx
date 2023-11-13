@@ -24,8 +24,12 @@ export default function Settings() {
     const ddClient = createDockerDesktopClient();
 
     const save = useCallback(async () => {
-        const resp = await ddClient.extension.vm?.service?.post('/config', JSON.stringify({
-            openai_api_key: key
+        //const resp = await ddClient.extension.vm?.service?.post('/config', JSON.stringify({
+        //    openai_api_key: key
+        //}))
+        await ddClient.extension.vm?.service?.post('/settings', JSON.stringify({
+            apiKey: key,
+            model: ''
         }))
         setSaving(false)
     }, [saving])
